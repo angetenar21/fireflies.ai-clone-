@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Activity, ChevronDown, Video, X } from "lucide-react";
+import { Activity, ChevronDown, Video } from "lucide-react";
 
 export default function LiveBotPage() {
   const [dateFilter, setDateFilter] = useState("Today");

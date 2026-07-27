@@ -7,7 +7,6 @@ import { FirefliesLogo } from "@/components/brand/FirefliesLogo";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { TopBar } from "@/components/layout/TopBar";
 import { MeetingsNavPanel } from "@/components/meetings/MeetingsNavPanel";
-import { AiAppsNavPanel } from "@/components/ai-apps/AiAppsNavPanel";
 import { NewMeetingModal } from "@/components/meetings/NewMeetingModal";
 
 export function AppShell({ children }: { children: React.ReactNode }) {

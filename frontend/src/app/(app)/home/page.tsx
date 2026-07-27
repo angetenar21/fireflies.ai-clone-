@@ -12,12 +12,11 @@ import {
   Video,
   Settings,
 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useToast } from "@/components/ui/ToastProvider";
 
 export default function HomePage() {
-  const { profile, firstName } = useProfile();
+  const { firstName } = useProfile();
   const { success } = useToast();
   const [recentMeeting, setRecentMeeting] = useState<MeetingListItem | null>(null);
 

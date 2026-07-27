@@ -8,7 +8,6 @@ import {
   Activity,
   BarChart3,
   Headphones,
-  MoreHorizontal,
   Puzzle,
   Settings,
   Sparkles,

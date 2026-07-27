@@ -10,7 +10,6 @@ import {
   Play,
   Plus,
   Search,
-  Sparkles,
   Star,
   UserRoundSearch,
   Users,
@@ -83,7 +82,6 @@ export default function VoiceAgentsPage() {
   const { firstName } = useProfile();
   const [tab, setTab] = useState<TabKey>("discover");
   const [bannerSlide, setBannerSlide] = useState(0);
-  const [npsOpen, setNpsOpen] = useState(true);
 
   return (
     <div className="relative mx-auto max-w-[1120px] space-y-6 pb-24">
