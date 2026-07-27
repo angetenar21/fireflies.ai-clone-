@@ -1,60 +1,65 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
-import { fetchMe, type AuthUser } from "@/lib/auth";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { DEMO_LOGIN, type AuthUser } from "@/lib/auth";
 import { useProfile } from "@/components/profile/ProfileProvider";
 
 type AuthContextValue = {
   isAuthenticated: boolean;
   ready: boolean;
   user: AuthUser | null;
+  login: (email: string, password: string) => Promise<void>;
+  signup: (name: string, email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+};
+
+const demoUser: AuthUser = {
+  id: 1,
+  name: DEMO_LOGIN.name,
+  email: DEMO_LOGIN.email,
+  meeting_count: 6,
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { updateProfile } = useProfile();
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(demoUser);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const me = await fetchMe();
-        if (!cancelled) {
-          setUser(me);
-          updateProfile({ name: me.name, email: me.email });
-        }
-      } catch {
-        if (!cancelled) setUser(null);
-      } finally {
-        if (!cancelled) setReady(true);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    updateProfile({ name: demoUser.name, email: demoUser.email });
+    setReady(true);
+  }, [updateProfile]);
 
-  const value = useMemo(
-    () => ({
-      isAuthenticated: !!user,
-      ready,
-      user,
-    }),
-    [user, ready]
+  const login = async () => {
+    updateProfile({ name: demoUser.name, email: demoUser.email });
+    setUser(demoUser);
+  };
+
+  const signup = async () => {
+    updateProfile({ name: demoUser.name, email: demoUser.email });
+    setUser(demoUser);
+  };
+
+  const logout = async () => {
+    setUser(demoUser);
+  };
+
+  return (
+    <AuthContext.Provider
+      value={{
+        isAuthenticated: true,
+        ready,
+        user,
+        login,
+        signup,
+        logout,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
   );
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
