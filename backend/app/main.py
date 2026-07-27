@@ -53,6 +53,7 @@ app = FastAPI(
 _default_origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "https://fireflies-ai-clone-4obdzxmt4-angetenar-maximus.vercel.app",
 ]
 _extra = [
     o.strip()
