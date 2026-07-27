@@ -1,0 +1,112 @@
+from __future__ import annotations
+
+from datetime import datetime, timezone
+
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+
+from app.db.session import get_db
+from app.models import ActionItem, Meeting, User
+from app.routers.auth import get_current_user
+from app.schemas import ActionItemCreate, ActionItemRead, ActionItemUpdate, MessageResponse
+
+router = APIRouter(prefix="/meetings", tags=["action-items"])
+
+
+def _utcnow() -> datetime:
+    return datetime.now(timezone.utc).replace(tzinfo=None)
+
+
+def _get_meeting(db: Session, meeting_id: int, user: User) -> Meeting:
+    meeting = (
+        db.query(Meeting)
+        .filter(Meeting.id == meeting_id, Meeting.owner_id == user.id)
+        .first()
+    )
+    if not meeting:
+        raise HTTPException(status_code=404, detail=f"Meeting {meeting_id} not found")
+    return meeting
+
+
+def _get_action_item(
+    db: Session, meeting_id: int, item_id: int, user: User
+) -> ActionItem:
+    _get_meeting(db, meeting_id, user)
+    item = (
+        db.query(ActionItem)
+        .filter(ActionItem.id == item_id, ActionItem.meeting_id == meeting_id)
+        .first()
+    )
+    if not item:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Action item {item_id} not found for meeting {meeting_id}",
+        )
+    return item
+
+
+@router.post(
+    "/{meeting_id}/action-items",
+    response_model=ActionItemRead,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_action_item(
+    meeting_id: int,
+    payload: ActionItemCreate,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> ActionItemRead:
+    _get_meeting(db, meeting_id, user)
+    item = ActionItem(
+        meeting_id=meeting_id,
+        text=payload.text.strip(),
+        assignee=payload.assignee,
+        is_completed=payload.is_completed,
+        priority=payload.priority,
+        created_at=_utcnow(),
+    )
+    db.add(item)
+    db.commit()
+    db.refresh(item)
+    return ActionItemRead.model_validate(item)
+
+
+@router.put(
+    "/{meeting_id}/action-items/{item_id}",
+    response_model=ActionItemRead,
+)
+def update_action_item(
+    meeting_id: int,
+    item_id: int,
+    payload: ActionItemUpdate,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> ActionItemRead:
+    item = _get_action_item(db, meeting_id, item_id, user)
+    if payload.text is not None:
+        item.text = payload.text.strip()
+    if payload.assignee is not None:
+        item.assignee = payload.assignee
+    if payload.is_completed is not None:
+        item.is_completed = payload.is_completed
+    if payload.priority is not None:
+        item.priority = payload.priority
+    db.commit()
+    db.refresh(item)
+    return ActionItemRead.model_validate(item)
+
+
+@router.delete(
+    "/{meeting_id}/action-items/{item_id}",
+    response_model=MessageResponse,
+)
+def delete_action_item(
+    meeting_id: int,
+    item_id: int,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> MessageResponse:
+    item = _get_action_item(db, meeting_id, item_id, user)
+    db.delete(item)
+    db.commit()
+    return MessageResponse(message="Action item deleted", id=item_id)
