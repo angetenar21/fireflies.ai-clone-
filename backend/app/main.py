@@ -61,9 +61,17 @@ _extra = [
 ]
 allow_origins = _default_origins + _extra
 
+# Default deployment regex covers common Vercel and Railway subdomains.
+# Set CORS_ORIGIN_REGEX to override this if you use a custom frontend domain.
+allow_origin_regex = os.getenv(
+    "CORS_ORIGIN_REGEX",
+    r"https://.*\.vercel\.app|https://.*\.up\.railway\.app",
+)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allow_origins,
+    allow_origin_regex=allow_origin_regex,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
