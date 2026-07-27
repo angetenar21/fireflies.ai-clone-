@@ -110,7 +110,9 @@ export function MeetingsDashboard() {
         );
       });
     } catch {
-      setError("Could not load meetings. Is the API running on localhost:8000?");
+      setError(
+        "Could not load meetings. Check the deployed API or set NEXT_PUBLIC_API_URL."
+      );
       setMeetings([]);
     } finally {
       setLoading(false);
@@ -166,10 +168,10 @@ export function MeetingsDashboard() {
       const label = Number.isNaN(d.getTime())
         ? "Unknown date"
         : d.toLocaleDateString(undefined, {
-            weekday: "short",
-            day: "numeric",
-            month: "short",
-          });
+          weekday: "short",
+          day: "numeric",
+          month: "short",
+        });
       if (!map.has(label)) map.set(label, []);
       map.get(label)!.push(m);
     }
@@ -213,11 +215,10 @@ export function MeetingsDashboard() {
                 key={tab.id}
                 type="button"
                 onClick={() => setScope(tab.id)}
-                className={`rounded-full border px-3.5 py-1.5 text-[12px] font-semibold transition ${
-                  scope === tab.id
+                className={`rounded-full border px-3.5 py-1.5 text-[12px] font-semibold transition ${scope === tab.id
                     ? "border-[#D1D5DB] bg-white text-aura-text shadow-sm dark:border-aura-border dark:bg-aura-bg"
                     : "border-transparent text-aura-gray hover:bg-[#F3F4F6] dark:hover:bg-[var(--aura-row-hover)]"
-                }`}
+                  }`}
               >
                 {tab.label}
               </button>
@@ -226,11 +227,10 @@ export function MeetingsDashboard() {
             <button
               type="button"
               onClick={() => setFiltersOpen((v) => !v)}
-              className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12px] font-semibold transition ${
-                filtersOpen
+              className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12px] font-semibold transition ${filtersOpen
                   ? "border-aura-purple/40 bg-aura-soft text-aura-purple"
                   : "border-[#E5E7EB] bg-white text-aura-gray hover:border-aura-muted dark:border-aura-border dark:bg-aura-bg"
-              }`}
+                }`}
             >
               <SlidersHorizontal className="h-3.5 w-3.5" />
               Filters
