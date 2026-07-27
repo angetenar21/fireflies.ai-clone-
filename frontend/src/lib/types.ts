@@ -99,6 +99,7 @@ export type MeetingsQuery = {
   date_to?: string;
   sort?: "recency" | "oldest";
   tag?: string;
+  scope?: string;
 };
 
 export type MeetingDetail = {
